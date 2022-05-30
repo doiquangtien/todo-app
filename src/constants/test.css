@@ -1,0 +1,28 @@
+.k {
+    text-align: center;
+    border-color: #d9d9d9;
+    background-color: #fafafa;
+}
+
+.k {
+    border-color: #f9f0ff;
+    background-color: #d3adf7;
+}
+
+
+.k {
+    border-color: #91d5ff;
+    background-color: #e6f7ff;
+}
+
+.status {
+    width: 700px;
+    color: #52c41a;
+    background-color: #f6ffed;
+    border: #b7eb8f;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
