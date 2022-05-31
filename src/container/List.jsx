@@ -9,12 +9,18 @@ import DialogComfirm from "../component/DialogComfirm";
 import { v4 as uuidv4 } from "uuid";
 import { ToastMessageAction } from "../reducer/todoSlice";
 import { getListApi } from "../reducer/listSlice";
+import { useForm } from "react-hook-form";
 
 function List() {
+  const {
+    register,
+    handleSubmit,
+    resetField,
+    formState: { errors },
+  } = useForm();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.currentUser);
   const { list, loading } = useSelector((state) => state.list);
-  const [valueInput, setValueInput] = useState("");
   const [openComfirm, setOpenComfirm] = React.useState(false);
   const [idList, setIdList] = useState("");
   const [openToast, setOpenToast] = React.useState(false);
@@ -25,12 +31,11 @@ function List() {
   useEffect(() => {
     dispatch(getListApi(currentUser.uid));
   }, [dispatch, currentUser.uid]);
-  const handleAddList = () => {
-    if (valueInput === "") return;
+  const handleAddList = (data) => {
     postListApi(
       dispatch,
       {
-        name: valueInput,
+        name: data.name,
         createdAt: new Date().toISOString(),
         todos: [],
       },
@@ -55,7 +60,7 @@ function List() {
         );
         handleOpenToast();
       });
-    setValueInput("");
+    resetField("name");
   };
 
   const handleDeleteList = (idList) => {
@@ -87,21 +92,33 @@ function List() {
           </Stack>
         ) : (
           <Grid container spacing={2}>
-            <Grid className="grid-top" item xs={12}>
+            <Grid
+              className="grid-top"
+              item
+              xs={12}
+              sx={{ display: "flex", flexWrap: "wrap" }}
+            >
               <TextField
-                value={valueInput}
-                onChange={(e) => {
-                  setValueInput(e.target.value);
-                }}
+                {...register("name", {
+                  required: true,
+                  maxLength: {
+                    value: 30,
+                    message: "Please enter less than 30 characters.",
+                  },
+                })}
                 className="grid-top-input"
                 id="standard-basic"
                 label="Add your list"
                 variant="standard"
               />
-              <Button variant="contained" onClick={handleAddList}>
+              <Button variant="contained" onClick={handleSubmit(handleAddList)}>
                 Add List
               </Button>
+              {errors?.name?.type === "maxLength" && (
+                <ErrorMessage>{errors?.name?.message}</ErrorMessage>
+              )}
             </Grid>
+
             <Grid item xs={12}>
               {sortList?.map((item, i) => (
                 <AccordionItem
@@ -127,7 +144,7 @@ const BoxStyle = styled(Box)`
   padding: 10px 20px;
   position: relative;
   top: 100px;
-  width: 800px;
+  max-width: 800px;
   margin: auto;
   background: rgba(255, 255, 255, 1);
   border-radius: 16px;
@@ -144,4 +161,10 @@ const BoxStyle = styled(Box)`
       margin-right: 30px;
     }
   }
+`;
+
+const ErrorMessage = styled.span`
+  margin-top: 5px;
+  color: red;
+  width: 100%;
 `;
